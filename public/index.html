@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>yt downloader</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="./style.css"/>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+      <script src="https://kit.fontawesome.com/49c7fa4bb3.js" crossorigin="anonymous"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+      
+  </head>
+  <style>
+    footer{
+      width:100%;
+      
+    }
+  </style>
+  <body>
+    <header class="w3-container w3-blue w3-center">
+        <h2>Media downloader</h2>
+    </header>
+    <div class="w3-container  w3-center w3-padding">
+      <div class="w3-card-4 w3-center w3-padding">
+        <input id="input" class="w3-input" placeholder="Enter url">
+        <p></p>
+        <button id="btn" class="w3-button w3-block w3-black w3-margin-bottom">Download</button>
+        </div>
+      </div>
+    <div class="w3-padding">
+    <div id="error"class="w3-panel w3-pale-red w3-round w3-border">
+      <h3>Error! </h3>
+      <p>Invalid url or private video please check url again</p>
+    </div>
+    </div>
+    <div id="group" class="w3-container w3-padding">
+    <div  class="w3-container w3-padding w3-center w3-border w3-border-black">
+      <div class="w3-panel w3-blue w3-round w3-padding">
+      <p id="title" class="w3-large w3-serif"></p>
+      </div>
+      <div class="w3-card-4">
+      <img id="image" src="https://www.w3schools.com/w3css/img_snowtops.jpg" class="w3-round-small"style="width:100%;">
+      </div>
+      <div id="size-info" class="w3-panel w3-left-align w3-leftbar">
+        <p id="size" ></p>
+      </div>
+      <div class="w3-panel w3-blue w3-round w3-padding">
+        <a id="link-btn" class="w3-butto n w3-block"style="text-decoration:none;">Download</a>
+      <div class="w3-container" id="spin">
+        <span><i class="fa-solid fa-circle-notch w3-spin" style="color: #FFD43B;"></i></span>
+      </div>
+      </div>
+    </div>
+  </div>
+    <footer class="w3-container w3-blue w3-center">
+      <h3>@rifas11</h3>
+      
+    </footer>
+  </body>
+  <script>
+    click = 1
+    //$("#spin").animate()
+    $("#size-info").hide();
+    $("#group").hide()
+    $("#error").hide();
+    let titles = new Array();
+    const yt_url = "https://youtu.be/qEjDmgbYHf4?si=CyngRVgRMu-HHFQP";
+    const validate = "http://localhost:3000/validate";
+    const video ="http://localhost:3000/video"
+    const sizeapi = "http://localhost:3000/size"
+    const header = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+      }
+   $("#btn").on("click",()=>{
+    url = $("#input").val()
+    //console.log(url)
+    $.ajax({
+      type:"POST",
+      url:validate,
+      data:{
+        urls:url
+      },
+      success:(data,status,xhr)=>{
+        console.log(data)
+        $("#error").hide();
+        console.log(xhr.status)
+        title=data.title;
+        titles.push(title)
+        thumbnail=data.thumbnail;
+        $("#title").html(title)
+        $("#image").attr("src",thumbnail)
+        $("#group").show()
+        $("#link-btn").hide()
+        download(video)
+      },
+      error:(data,status,xhr)=>{
+        console.log(data)
+        $("#group").hide()
+        $("#error").show();
+      }
+    })
+   })
+   function download(video){
+     $.ajax({
+       xhrFields:{
+         responseType:"blob"
+       },
+       headers:header,
+       type:"POST",
+       url:video,
+       data:{
+         link:url
+       },
+       success:(data,status,xhr)=>{
+        // console.log(data)
+       // test();
+        $("#spin").hide()
+        $("#link-btn").show()
+      //  console.log(data)
+       // console.log(xhr)
+       
+         const blob = new Blob([data],{type:"video/mp4"});
+         const {size,type} = getSize(blob.size);
+         $("#size").html(`size : ${size} ${type}`)
+         $("#size-info").show();
+         console.log(getSize(blob.size))
+         const uri = URL.createObjectURL(blob)
+        $("#link-btn").attr("href",uri)
+        
+         $("#link-btn").attr("download",`${titles[0]}.mp4`)
+         $("#link-btn").on("click",()=>{
+           setTimeout(()=>{
+             URL.revokeObjectURL(uri)
+             alert("download revoked")
+           },100)
+         })
+       },
+       error:(err)=>{
+         //console.log(err)
+       }
+     })
+   }
+   const getSize = (size)=>{
+     res = size/(1024**2);
+     fixed = res.toFixed(2);
+     if(Number.parseInt(res)>1000){
+       return({size:fixed,type:"gb"})
+     }else{
+       return({size:fixed,type:"mb"})
+     }
+   }
+/*   function test(){
+       $.ajax({           
+         type:"GET",           
+         url:sizeapi,           
+         dataType:"json",           
+         success:(data)=>{             
+           realSize= data;   
+         
+        console.log("size : ",realSize)
+        // const type=getSize(data).type
+       //  console.log(size1)
+         $("#size").html(`size : ${data} ${type}`)
+        // alert(data)             
+         console.log(data)           
+         },           
+         error:(e)=>{             
+           console.log(e)           
+         }         
+       })
+   }*/
+  </script>
+</html>
