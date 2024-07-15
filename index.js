@@ -27,6 +27,7 @@ async function yt_info(link){
 }
 
 app.post("/validate",async(req,res)=>{
+  try{
   const {urls} = req.body;
   res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
@@ -37,11 +38,22 @@ app.post("/validate",async(req,res)=>{
   //console.log(thumbnail,title)
   console.log(ytdl.validateURL(urls))
   if(validateUrl(urls)==true){
+    try{
      yt_info(urls).then((val)=>{
+       try{
        const {thumbnail,title} = val;
        console.log(thumbnail,title)
        res.send(val)
+       }catch(e){
+         res.status(422).json({erro:"wrong url or age restricted"})
+       }
      })
+     }catch(e){
+       res.status(422).json({
+         error:"wrong url or age restricted"
+       })
+     }
+     
    /*res.status(200).json({
       thumbnail:"https://assets.codemzy.com/blog/javascript/object-not-valid-json-error.png",
       title:"test",
@@ -54,12 +66,19 @@ app.post("/validate",async(req,res)=>{
       error:"wrong url or private "
     })
   }
+  }catch(e){
+    res.status(422).json({
+      error:"wrong url or private"
+    })
+  }
 })
+
 /*app.post("/info",(req,res)=>{
   
 })*/
  function save(link,res){
   //const info = await ytdl.getInfo(link);const title = info.videoDetails.title;
+  try{
   const title = global.title
   const file_save = fs.createWriteStream(path.join(__dirname,"temp",`${title}.mp4`));
   console.log("title : "+global.title)
@@ -78,7 +97,11 @@ app.post("/validate",async(req,res)=>{
   })
   })
  /* fs.unlinkSync(path.join(__dirname,"temp",`${global.title}.mp4`))*/
-  
+  }catch(e){
+    res.status(422).json({
+      error:"wrong url or private "
+    })
+  }
  }
 app.get("/size",(req,res)=>{
   res.header('Access-Control-Allow-Origin', '*');
@@ -88,6 +111,7 @@ app.get("/size",(req,res)=>{
    res.json({size:size.size})
   })
 app.post("/video",(req,res)=>{
+  try{
   console.log(req.body)
   const {link} = req.body
   console.log(link)
@@ -115,9 +139,14 @@ app.post("/video",(req,res)=>{
   res.set("Content-type","text/html")
   res.sendFile(path.join(__dirname,"test.mp4"))
  */
+  }catch(e){
+    res.status(422).json({
+      error:"wrong url or private"
+    })
+  }
   })
   //next()
 
 app.listen(3000,()=>{
-  console.log("listening port 8000")
+  console.log("listening port 3000")
 })
