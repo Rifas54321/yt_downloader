@@ -25,6 +25,11 @@
       <div class="w3-card-4 w3-center w3-padding">
         <input id="input" class="w3-input" placeholder="Enter url">
         <p></p>
+       <!-- <button id="demo-spin" class="fa-solid fa-spinner"></button>-->
+        <div class="w3-button w3-block w3-black" id="demo-spin">
+        <span><i class="fa-solid fa-circle-notch w3-spin" style="color:white;"></i></span>
+      </div>
+      <p></p>
         <button id="btn" class="w3-button w3-block w3-black w3-margin-bottom">Download</button>
         </div>
       </div>
@@ -40,7 +45,7 @@
       <p id="title" class="w3-large w3-serif"></p>
       </div>
       <div class="w3-card-4">
-      <img id="image"  class="w3-round-small"style="width:100%;">
+      <img id="image" src="https://www.w3schools.com/w3css/img_snowtops.jpg" class="w3-round-small"style="width:100%;">
       </div>
       <div id="size-info" class="w3-panel w3-left-align w3-leftbar">
         <p id="size" ></p>
@@ -61,6 +66,7 @@
   <script>
     click = 1
     //$("#spin").animate()
+    $("#demo-spin").hide();
     $("#size-info").hide();
     $("#group").hide()
     $("#error").hide();
@@ -73,6 +79,8 @@
       'Content-Type': 'application/x-www-form-urlencoded'
       }
    $("#btn").on("click",()=>{
+    $("#btn").hide();
+    $("#demo-spin").show()
     url = $("#input").val()
     //console.log(url)
     $.ajax({
@@ -82,6 +90,8 @@
         urls:url
       },
       success:(data,status,xhr)=>{
+        $("#demo-spin").hide();
+        $("#btn").show();
         console.log(data)
         $("#error").hide();
         console.log(xhr.status)
@@ -96,6 +106,8 @@
       },
       error:(data,status,xhr)=>{
         console.log(data)
+        $("#demo-spin").hide();
+        $("#btn").show();
         $("#group").hide()
         $("#error").show();
       }
@@ -132,8 +144,8 @@
          $("#link-btn").on("click",()=>{
            setTimeout(()=>{
              URL.revokeObjectURL(uri)
-           //  alert("download revoked")
-           },3000000)
+             alert("download revoked")
+           },100)
          })
        },
        error:(err)=>{
